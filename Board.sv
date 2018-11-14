@@ -47,9 +47,9 @@ TristateB TriALU(.tri_en(~control[3]),.entrada(ALUR),.salida(databus));
 
 RAM DRAM(.clk(clk), .we(~control[4]), .cs(~control[5]), .address(loadAdd),.data(databus));
 
-Decoder OutDecode(.load(~control[0]),.binary(operand),.onehot(outputE));
+Decoder OutDecode(.load(~control[0]),.clk(clk),.binary(operand),.onehot(outputE));
 
-Decoder InputDecode(.load(~control[2]),.binary(operand),.onehot(inputE));
+Decoder InputDecode(.load(~control[2]),.clk(clk),.binary(operand),.onehot(inputE));
 
 TristateB Input0(.tri_en(inputE[0]),.entrada(In0),.salida(databus));
 
@@ -64,6 +64,13 @@ FFD4 Output1(.clk(outputE[1]),.reset(reset),.D(databus),.Q(Out1));
 FFD4 Output2(.clk(outputE[2]),.reset(reset),.D(databus),.Q(Out2));
 
 assign loadAdd= {operand,progbyte};
+
+assign Accu = operand;
+
+assign C = ~uRomAddress[2];
+
+assign Z = ~uRomAddress[1];
+
 
 
 endmodule
