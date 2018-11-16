@@ -7,7 +7,7 @@
 module Decoder #(parameter N=4,M=16)(input logic load,clk,input logic [N-1:0] binary, output logic [M-1:0] onehot);
 	
 	
-	always @(posedge clk)begin
+	always @(clk)begin
 		if (load)begin
 			case(binary)
 				4'd0:  onehot<=16'b0000000000000001;

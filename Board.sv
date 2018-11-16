@@ -12,7 +12,7 @@
 `include "RAM.sv"
 `include "DecoderIO.sv"
 
-module Board #(parameter N=4)(input logic clk, reset, input logic [N-1:0] In0,In1,In2, output logic C,Z, output logic [N-1:0] Out0,Out1,Out2,Accu);
+module Board #(parameter N=4)(input logic clk, reset, input logic [N-1:0] In0,In1,In2, output logic C,Z, output logic [N-1:0] Out0,Out1,Out2,Accu, output logic [15:0] test);
 
 wire [15:0] control;
 wire [3:0] operand,ALUR,Aout;
@@ -29,7 +29,7 @@ PC ProgCounter(.LOAD(loadAdd),.reset(reset),.loadE(~control[14]),.incPC(control[
 
 FFT Phase(.clk(clk),.reset(reset),.T(1'b1),.Q(uRomAddress[0]));
 
-FFD2 CZ(.clk(control[12]),.reset(reset),.D(CarryZero),.Q(uRomAddress[2:1]));
+FFD2 CZ(.clk((control[12] && ~uRomAddress[0])),.reset(reset),.D(~CarryZero),.Q(uRomAddress[2:1]));
 
 ControlROM uROM(.address(uRomAddress),.ProgOut(control));
 
@@ -47,9 +47,9 @@ TristateB TriALU(.tri_en(~control[3]),.entrada(ALUR),.salida(databus));
 
 RAM DRAM(.clk(clk), .we(~control[4]), .cs(~control[5]), .address(loadAdd),.data(databus));
 
-Decoder OutDecode(.load(~control[0]),.clk(clk),.binary(operand),.onehot(outputE));
+Decoder OutDecode(.load(~control[0]),.clk(control[13]),.binary(operand),.onehot(outputE)); //maybe clk(clk)
 
-Decoder InputDecode(.load(~control[2]),.clk(clk),.binary(operand),.onehot(inputE));
+Decoder InputDecode(.load(~control[2]),.clk(control[13]),.binary(operand),.onehot(inputE));
 
 TristateB Input0(.tri_en(inputE[0]),.entrada(In0),.salida(databus));
 
@@ -65,11 +65,13 @@ FFD4 Output2(.clk(outputE[2]),.reset(reset),.D(databus),.Q(Out2));
 
 assign loadAdd= {operand,progbyte};
 
-assign Accu = operand;
+assign Accu = Aout;
 
-assign C = ~uRomAddress[2];
+assign C = uRomAddress[2];
 
-assign Z = ~uRomAddress[1];
+assign Z = uRomAddress[1];
+
+assign test=control;
 
 
 

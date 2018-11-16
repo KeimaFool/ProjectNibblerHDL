@@ -40,7 +40,7 @@ module ControlROM #(parameter N=7,M=16)(input logic [N-1:0] address, output logi
 			7'b1101xx1: ProgOut<=16'b0111100000110110; //OUT
 			7'b1110xx1: ProgOut<=16'b0100010001111101; //NORI
 			7'b1111xx1: ProgOut<=16'b1100010001011111; //NORM
-			default: ProgOut<=0;
+			default: 	ProgOut<=16'b0111100000111111;
 		endcase
 	
 	end
