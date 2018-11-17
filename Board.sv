@@ -12,7 +12,7 @@
 `include "RAM.sv"
 `include "DecoderIO.sv"
 
-module Board #(parameter N=4)(input logic clk, reset, input logic [N-1:0] In0,In1,In2, output logic C,Z, output logic [N-1:0] Out0,Out1,Out2,Accu, output logic [15:0] test);
+module Board #(parameter N=4)(input logic clk, reset, input logic [N-1:0] In0,In1,In2, output logic C,Z, output logic [N-1:0] Out0,Out1,Out2,Accu, output logic [3:0] test);
 
 wire [15:0] control;
 wire [3:0] operand,ALUR,Aout;
@@ -37,9 +37,9 @@ ProgROM pROM(.address(address),.ProgOut(progbyte));
 
 FFD8 Fetch(.clk(uRomAddress[0]),.reset(reset),.D(progbyte),.Q({uRomAddress[6:3],operand}));
 
-TristateB Oper(.tri_en(~control[1]),.entrada(operand),.salida(databus));
+TristateB Oper(.tri_en(~control[1] ),.entrada(operand),.salida(databus));
 
-FFD4 A(.clk(control[13]),.reset(reset),.D(ALUR),.Q(Aout));
+FFD4 A(.clk(~control[13] && ~uRomAddress[0]),.reset(reset),.D(ALUR),.Q(Aout));
 
 ALU ALU(.A(Aout),.B(databus),.S(control[10:6]),.nCin(control[11]),.Cout(CarryZero[1]),.eq(CarryZero[0]),.Result(ALUR));
 
@@ -57,21 +57,22 @@ TristateB Input1(.tri_en(inputE[1]),.entrada(In1),.salida(databus));
 
 TristateB Input2(.tri_en(inputE[2]),.entrada(In2),.salida(databus));
 
-FFD4 Output0(.clk(outputE[0]),.reset(reset),.D(databus),.Q(Out0));
+FFD4 Output0(.clk(outputE[0]  && ~uRomAddress[0]),.reset(reset),.D(databus),.Q(Out0));
 
-FFD4 Output1(.clk(outputE[1]),.reset(reset),.D(databus),.Q(Out1));
+FFD4 Output1(.clk(outputE[1] && ~uRomAddress[0]),.reset(reset),.D(databus),.Q(Out1));
 
-FFD4 Output2(.clk(outputE[2]),.reset(reset),.D(databus),.Q(Out2));
+FFD4 Output2(.clk(outputE[2]  && ~uRomAddress[0]),.reset(reset),.D(databus),.Q(Out2));
 
 assign loadAdd= {operand,progbyte};
 
 assign Accu = Aout;
 
-assign C = uRomAddress[2];
+assign C = ~uRomAddress[2];
 
-assign Z = uRomAddress[1];
+assign Z = ~uRomAddress[1];
 
-assign test=control;
+assign test=databus;
+
 
 
 

@@ -6,7 +6,7 @@
 
 module RAM #(parameter N=12, M=4)(input logic clk, we,cs, input logic [N-1:0] address, inout wire [M-1:0] data);
 
-logic [M-1:0] memory [0:4000];
+logic [M-1:0] memory [0:4095];
 logic [M-1:0] data_out;
 
 assign data = (cs &&  ! we) ? data_out : 4'bz;

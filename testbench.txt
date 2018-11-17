@@ -1,0 +1,142 @@
+module testbench();
+  logic clk = 1, reset;
+  logic [3:0] PUSHBUTTONS0, PUSHBUTTONS1, PUSHBUTTONS2;
+  logic PHASE, C_FLAG, Z_FLAG;
+  logic [3:0] INSTR, OPERAND, DATA_BUS, ACCU, PORT0, PORT1, PORT2;
+  logic [7:0] PROGRAM_BYTE;
+  logic [11:0] PC, ADDRESS_RAM;
+  real points = 0;
+
+  uP dut(.clk(clk), .reset(reset), .PUSHBUTTONS0(PUSHBUTTONS0), .PUSHBUTTONS1(PUSHBUTTONS1), .PUSHBUTTONS2(PUSHBUTTONS2),
+    .PHASE(PHASE), .C_FLAG(C_FLAG), .Z_FLAG(Z_FLAG), .INSTR(INSTR), .OPERAND(OPERAND),
+    .DATA_BUS(DATA_BUS), .PORT0(PORT0), .PORT1(PORT1), .PORT2(PORT2), .ACCU(ACCU), .PROGRAM_BYTE(PROGRAM_BYTE),
+    .PC(PC), .ADDRESS_RAM(ADDRESS_RAM));
+
+  initial begin
+    reset = 0;
+    #1 reset = 1;
+    #1 reset = 0;
+    PUSHBUTTONS0 = 4'b0110;
+    PUSHBUTTONS1 = 4'b0100;
+    PUSHBUTTONS2 = 4'b0001;
+    //$display("\t\ttime:\tphase:\tPC:\tProgramByte:\tInstr:\tOprnd:\tRAM Addr:\tData Bus:\tAccu:\tC:\tZ:\tOut:\tIn:\t");
+    //$monitor("%d\t%b\t%h\t%b\t%b\t%b\t%b\t%b\t\t%b\t%b\t%b\t%b\t%b", $time, PHASE, PC, PROGRAM_BYTE, INSTR, OPERAND, ADDRESS_RAM, DATA_BUS, ACCU, C_FLAG, Z_FLAG, FF_OUT, PUSHBUTTONS);
+  end
+  initial
+    begin
+  	  $dumpfile("dump.vcd");
+  	  $dumpvars(1);
+    end
+
+  initial
+    #1000 $finish;
+
+  always
+    #5 clk = ~clk;
+
+  always @ (PHASE) begin
+    case ($time)
+      20: begin
+        if (ACCU === 4'b1001) begin
+          points = points + 5; $display("LIT funciona bien. Nota : %d", points); end
+        else
+          $display("LIT NO funciona bien. Nota: %d", points);
+      end
+      40: begin
+        if (ACCU === 4'b1010) begin
+          points = points + 5; $display("ADDI funciona bien. Nota : %d", points); end
+        else
+          $display("ADDI NO funciona bien. Nota: %d", points);
+      end
+      60: begin
+        if (ACCU === 4'b0101) begin
+          points = points + 5; $display("NORI funciona bien. Nota : %d", points); end
+        else
+          $display("NORI NO funciona bien. Nota: %d", points);
+      end
+      100: begin
+        if (Z_FLAG === 1) begin
+          points = points + 10; $display("CMPI & Z_FLAG funcionan bien. Nota: %d", points);
+          $display("Felicitaciones! Todas las instrucciones con literales funcionan :)");
+        end
+        else
+          $display("CMPI & Z_FLAG NO funcionan bien. Nota: %d", points);
+      end
+      140: begin
+        if (ACCU === 4'b0000 && C_FLAG === 1) begin
+          points = points + 5; $display("C_FLAG funciona bien. Nota : %d", points);
+          $display("Felicitaciones! Todas las banderas funcionan bien! :D");
+        end
+        else
+          $display("C_FLAG NO funciona bien. Nota: %d", points);
+      end
+      220: begin
+      if (ACCU === 4'b1111) begin
+        points = points + 15; $display("RAM (ST & LD) funciona bien. Nota : %d", points);
+      end
+      else
+        $display("C_FLAG NO funciona bien. Nota: %d", points);
+    end
+      260: begin
+        if (PORT0 === 4'b1000)
+          $display("PORT0 funciona bien.");
+        else
+          $display("PORT0 NO funciona bien.");
+      end
+      300: begin
+        if (PORT1 === 4'b0110)
+          $display("PORT1 funciona bien.");
+        else
+          $display("PORT1 NO funciona bien.");
+      end
+      340: begin
+        if (PORT2 === 4'b0001) begin
+          points = points + 10; $display("PORT2 funciona bien. Nota: %d", points); end
+        else
+          $display("PORT2 NO funciona bien.");
+      end
+      360: begin
+        if (ACCU === 4'b0110)
+          $display("IN0 funciona bien.");
+        else
+          $display("IN0 NO funciona bien.");
+      end
+      380: begin
+        if (ACCU === 4'b0100)
+          $display("IN1 funciona bien.");
+        else
+          $display("IN1 NO funciona bien.");
+      end
+      400: begin
+        if (ACCU === 4'b0001) begin
+          points = points + 10; $display("IN2 funciona bien. Nota: %d", points); end
+        else
+          $display("IN2 NO funciona bien.");
+      end
+      460: begin
+        if (ACCU === 4'b0000 && Z_FLAG === 1 && C_FLAG === 1) begin
+          points = points + 5; $display("ADDM funciona bien. Nota: %d", points); end
+        else
+          $display("ADDM NO funciona bien.");
+      end
+      500: begin
+        if (ACCU === 4'b0110) begin
+          points = points + 5; $display("NORM funciona bien. Nota: %d", points); end
+        else
+          $display("NORM NO funciona bien.");
+      end
+      520: begin
+        if (Z_FLAG === 0) begin
+          $display("CMPM parece funcionar bien. Nota: %d", points); end
+        else
+          $display("CMPM NO funciona bien.");
+      end
+      560: begin
+        if (Z_FLAG === 1) begin
+          points = points + 5; $display("CMPM funciona bien. Nota: %d", points); end
+        else
+          $display("CMPM NO funciona bien.");
+      end
+    endcase
+  end
+endmodule
