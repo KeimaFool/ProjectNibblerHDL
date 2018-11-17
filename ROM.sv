@@ -6,7 +6,7 @@
 
 module ProgROM #(parameter N=12,M=8)(input logic [N-1:0] address, output logic[M-1:0] ProgOut);
 
-	logic [N-1:0] memory [0:100];
+	logic [N-1:0] memory [0:500];
 	
 	assign ProgOut=memory[address];
 	

@@ -12,7 +12,7 @@
 `include "RAM.sv"
 `include "DecoderIO.sv"
 
-module Board #(parameter N=4)(input logic clk, reset, input logic [N-1:0] In0,In1,In2, output logic C,Z, output logic [N-1:0] Out0,Out1,Out2,Accu, output logic [3:0] test);
+module Board #(parameter N=4)(input logic clk, reset, input logic [N-1:0] In0,In1,In2, output logic C,Z, output logic [N-1:0] Out0,Out1,Out2,Accu);
 
 wire [15:0] control;
 wire [3:0] operand,ALUR,Aout;
@@ -70,9 +70,6 @@ assign Accu = Aout;
 assign C = ~uRomAddress[2];
 
 assign Z = ~uRomAddress[1];
-
-assign test=databus;
-
 
 
 
